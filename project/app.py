@@ -12,9 +12,20 @@ from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI, OpenAI
+from langchain_core.output_parsers import StrOutputParser
 
 
-os.environ['OPENAI_API_KEY'] = config('OPENAI_API_KEY')
+def initial_parameters() -> tuple:
+    load_dotenv()
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    model = ChatOpenAI(model="gpt-4o-mini")
+    parser = StrOutputParser()
+    return model, parser, client
+
+model, parser, client = initial_parameters() 
+
 persist_directory = 'db'
 
 
