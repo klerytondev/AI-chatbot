@@ -1,10 +1,6 @@
 import os
 import tempfile
-
 import streamlit as st
-
-from decouple import config
-
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
