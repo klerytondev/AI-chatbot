@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAI
 from langchain_core.output_parsers import StrOutputParser
 
-
 def initial_parameters() -> tuple:
     load_dotenv()
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -64,7 +63,7 @@ def process_csv(file):
         chunk_overlap=400,
     )
     # Divide o texto em chunks
-    chunks = text_spliter.split_text(docs)
+    chunks = text_spliter.split_text(text=docs)
     return chunks
 
 # Define o tipo de arquivo e chama a função correspondente
@@ -103,6 +102,37 @@ def add_to_vector_store(chunks, vector_store=None):
         )
     return vector_store
 
+def ask_question(model, query, vector_store):
+    llm = ChatOpenAI(model=model)
+    retriever = vector_store.as_retriever()
+
+    system_prompt = '''
+    Use o contexto para responder as perguntas.
+    Se não encontrar uma resposta no contexto,
+    explique que não há informações disponíveis.
+    E não repsonda em ipotese alguma algo que tiver fora do contexto.
+    Responda em formato de markdown e com visualizações
+    elaboradas e interativas.
+    Contexto: {context}
+    '''
+    messages = [('system', system_prompt)]
+    for message in st.session_state.messages:
+        messages.append((message.get('role'), message.get('content')))
+    messages.append(('human', '{input}'))
+
+    prompt = ChatPromptTemplate.from_messages(messages)
+
+    question_answer_chain = create_stuff_documents_chain(
+        llm=llm,
+        prompt=prompt,
+    )
+    chain = create_retrieval_chain(
+        retriever=retriever,
+        combine_docs_chain=question_answer_chain,
+    )
+    response = chain.invoke({'input': query})
+    return response.get('answer')
+
 # Carrega o vector_store    
 vector_store = load_existing_vector_store()
 
@@ -125,6 +155,7 @@ with st.sidebar:
             for file in uploaded_file:
                 chunks = process_files(file)
                 all_chunks.extend(chunks)
+            print(all_chunks)
             vector_store = add_to_vector_store(
                 chunks=all_chunks,
                 vector_store=vector_store,
@@ -141,6 +172,25 @@ with st.sidebar:
         label='Selecione o modelo LLM de sua preferência',
         options=model_options,
     )
+
+if 'messages' not in st.session_state:
+    st.session_state['messages'] = []
+
 question = st.chat_input('Digite sua pergunta aqui:')
 
-# st.chat_message('user').write(question)
+if vector_store and question:
+    for message in st.session_state.messages:
+        st.chat_message(message.get('role')).write(message.get('content'))
+
+    st.chat_message('user').write(question)
+    st.session_state.messages.append({'role': 'user', 'content': question})
+
+    with st.spinner('Buscando resposta...'):
+        response = ask_question(
+            model=selected_model,
+            query=question,
+            vector_store=vector_store,
+        )
+
+        st.chat_message('ai').write(response)
+        st.session_state.messages.append({'role': 'ai', 'content': response})
