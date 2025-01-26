@@ -6,6 +6,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
+from langchain.schema import Document
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -31,7 +32,7 @@ def process_pdf(file):
         temp_file_path = temp_file.name # Recupera o caminho do arquivo temporário em disco C:\Users\user\AppData\Local\Temp\tmp0z7z7z9v.pdf
 
     loader = PyPDFLoader(temp_file_path)
-    docs = loader.load()
+    doc_pdf = loader.load()
 
     # Deleta o arquivo temporário
     os.remove(temp_file_path)
@@ -42,7 +43,7 @@ def process_pdf(file):
         chunk_overlap=400,
     )
     # Divide os documentos em chunks
-    chunks = text_spliter.split_documents(documents=docs)
+    chunks = text_spliter.split_documents(documents=doc_pdf)
     return chunks
 
 # Processa o arquivo CSV e retorna os chunks
@@ -57,13 +58,16 @@ def process_csv(file):
     # Deleta o arquivo temporário
     os.remove(temp_file_path)
 
+     # Converte a string em uma lista de documentos
+    doc_csv = [Document(page_content=docs)]
+
     # Divide o texto em chunks
     text_spliter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=400,
     )
     # Divide o texto em chunks
-    chunks = text_spliter.split_text(text=docs)
+    chunks = text_spliter.split_documents(documents=doc_csv)
     return chunks
 
 # Define o tipo de arquivo e chama a função correspondente
