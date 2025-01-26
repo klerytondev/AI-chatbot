@@ -22,18 +22,30 @@ def initial_parameters() -> tuple:
 
 model, parser, client = initial_parameters() 
 
+persist_directory = 'db'
+
 st.set_page_config(
     page_title='Chat PyGPT',
     page_icon='📄',
 )
 st.header('🤖 Chat com IA 🤖')
 
+# Cria um cache para armazenar os chunks
 with st.sidebar:
     st.header('📄 Upload de arquivos ')
     uploaded_file = st.file_uploader("Adicione seus arquivos", 
                                      type=["pdf", "csv"], 
                                      accept_multiple_files=True)
-    
+# Processa os arquivos armazenando os chunks    
+    if uploaded_file:
+        with st.spinner('Processando arquivos...'):
+            all_chunks = []
+            for file in uploaded_file:
+                chunks = process_files(file)
+                all_chunks.extend(chunks)
+            
+
+
     model_options = [
         'gpt-3.5-turbo',
         'gpt-4',
@@ -45,3 +57,6 @@ with st.sidebar:
         label='Selecione o modelo LLM de sua preferência',
         options=model_options,
     )
+question = st.text_input('Digite sua pergunta aqui:')
+
+# st.chat_message('user').write(question)
