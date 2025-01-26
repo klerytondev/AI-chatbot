@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import tempfile
 import streamlit as st
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -24,6 +25,59 @@ model, parser, client = initial_parameters()
 
 persist_directory = 'db'
 
+# Processa o arquivo PDF e retorna os chunks
+def process_pdf(file):
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
+        temp_file.write(file.read()) # Persisti o arquivo temporário em disco
+        temp_file_path = temp_file.name # Recupera o caminho do arquivo temporário em disco C:\Users\user\AppData\Local\Temp\tmp0z7z7z9v.pdf
+
+    loader = PyPDFLoader(temp_file_path)
+    docs = loader.load()
+
+    # Deleta o arquivo temporário
+    os.remove(temp_file_path)
+
+    # Divide o texto em chunks
+    text_spliter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=400,
+    )
+    # Divide os documentos em chunks
+    chunks = text_spliter.split_documents(documents=docs)
+    return chunks
+
+# Processa o arquivo CSV e retorna os chunks
+def process_csv(file):
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as temp_file:
+        temp_file.write(file.read()) # Persisti o arquivo temporário em disco
+        temp_file_path = temp_file.name # Recupera o caminho do arquivo temporário em disco C:\Users\user\AppData\Local\Temp\tmp0z7z7z9v.csv
+
+    df = pd.read_csv(temp_file_path)
+    docs = df.to_string()
+
+    # Deleta o arquivo temporário
+    os.remove(temp_file_path)
+
+    # Divide o texto em chunks
+    text_spliter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=400,
+    )
+    # Divide o texto em chunks
+    chunks = text_spliter.split_text(docs)
+    return chunks
+
+def process_files(file):
+    file_name = file.name
+    file_extension = os.path.splitext(file_name)[1].lower()
+
+    if file_extension == '.pdf':
+        return process_pdf(file)
+    elif file_extension == '.csv':
+        return process_csv(file)
+    else:
+        raise ValueError("Tipo de arquivo não suportado")
+
 st.set_page_config(
     page_title='Chat PyGPT',
     page_icon='📄',
@@ -43,6 +97,7 @@ with st.sidebar:
             for file in uploaded_file:
                 chunks = process_files(file)
                 all_chunks.extend(chunks)
+            print(all_chunks)
             
 
 
@@ -57,6 +112,6 @@ with st.sidebar:
         label='Selecione o modelo LLM de sua preferência',
         options=model_options,
     )
-question = st.text_input('Digite sua pergunta aqui:')
+question = st.chat_input('Digite sua pergunta aqui:')
 
 # st.chat_message('user').write(question)
