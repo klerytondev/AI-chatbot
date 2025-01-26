@@ -67,6 +67,7 @@ def process_csv(file):
     chunks = text_spliter.split_text(docs)
     return chunks
 
+# Define o tipo de arquivo e chama a função correspondente
 def process_files(file):
     file_name = file.name
     file_extension = os.path.splitext(file_name)[1].lower()
@@ -77,7 +78,8 @@ def process_files(file):
         return process_csv(file)
     else:
         raise ValueError("Tipo de arquivo não suportado")
-    
+
+# Carrega o vector_store existente ou retorna None caso não exista
 def load_existing_vector_store():
     if os.path.exists(os.path.join(persist_directory)):
         vector_store = Chroma(
@@ -87,9 +89,12 @@ def load_existing_vector_store():
         return vector_store
     return None
 
+# Adiciona os chunks ao vector_store
 def add_to_vector_store(chunks, vector_store=None):
+    # Verifica se o vector_store já existe e adiciona os chunks
     if vector_store:
         vector_store.add_documents(chunks)
+    # Caso não exista, cria um novo vector_store e adiciona os chunks
     else:
         vector_store = Chroma.from_documents(
             documents=chunks,
@@ -97,7 +102,8 @@ def add_to_vector_store(chunks, vector_store=None):
             persist_directory=persist_directory,
         )
     return vector_store
-    
+
+# Carrega o vector_store    
 vector_store = load_existing_vector_store()
 
 st.set_page_config(
