@@ -70,6 +70,7 @@ def ask_question(model, query, vector_store):
     Use o contexto para responder as perguntas.
     Se não encontrar uma resposta no contexto,
     explique que não há informações disponíveis.
+    E não repsonda em ipotese alguma algo que tiver fora do contexto.
     Responda em formato de markdown e com visualizações
     elaboradas e interativas.
     Contexto: {context}
