@@ -99,7 +99,7 @@ st.set_page_config(
     page_title='Chat PyGPT',
     page_icon='📄',
 )
-st.header('🤖 Chat com seus documentos (RAG)')
+st.header('🤖 Chat com IA 🤖')
 
 with st.sidebar:
     st.header('Upload de arquivos 📄')
