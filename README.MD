@@ -66,6 +66,22 @@ Utilizamos o Chroma como banco de dados para armazenar e recuperar os embeddings
 
 Utilizamos a API da OpenAI para interagir com modelos de linguagem avançados, como o `gpt-4` e `gpt-3.5-turbo`. Esses modelos são responsáveis por gerar respostas baseadas nos chunks recuperados do banco de dados, proporcionando respostas precisas e contextualmente relevantes.
 
+## Executando com Docker
+
+Para executar este projeto em um ambiente Docker, siga os passos abaixo:
+
+1. Construa a imagem Docker:
+    ```bash
+    docker-compose build
+    ```
+
+2. Inicie o contêiner Docker:
+    ```bash
+    docker-compose up
+    ```
+
+3. Acesse a aplicação no navegador através do endereço `http://localhost:8501`.
+
 ## Benefícios
 
 - **Interatividade**: Permite a interação direta com modelos de linguagem avançados.
