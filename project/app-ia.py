@@ -11,7 +11,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI, OpenAI
+from langchain_openai import OpenAI  # Removida a importação duplicada
 from langchain_core.output_parsers import StrOutputParser
 
 def initial_parameters() -> tuple:
@@ -28,8 +28,8 @@ persist_directory = 'db'
 # Processa o arquivo PDF e retorna os chunks
 def process_pdf(file):
     with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
-        temp_file.write(file.read()) # Persisti o arquivo temporário em disco
-        temp_file_path = temp_file.name # Recupera o caminho do arquivo temporário em disco C:\Users\user\AppData\Local\Temp\tmp0z7z7z9v.pdf
+        temp_file.write(file.read())  # Persisti o arquivo temporário em disco
+        temp_file_path = temp_file.name  # Recupera o caminho do arquivo temporário em disco
 
     loader = PyPDFLoader(temp_file_path)
     doc_pdf = loader.load()
@@ -49,8 +49,8 @@ def process_pdf(file):
 # Processa o arquivo CSV e retorna os chunks
 def process_csv(file):
     with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as temp_file:
-        temp_file.write(file.read()) # Persisti o arquivo temporário em disco
-        temp_file_path = temp_file.name # Recupera o caminho do arquivo temporário em disco C:\Users\user\AppData\Local\Temp\tmp0z7z7z9v.csv
+        temp_file.write(file.read())  # Persisti o arquivo temporário em disco
+        temp_file_path = temp_file.name  # Recupera o caminho do arquivo temporário em disco
 
     df = pd.read_csv(temp_file_path)
     docs = df.to_string()
@@ -58,7 +58,7 @@ def process_csv(file):
     # Deleta o arquivo temporário
     os.remove(temp_file_path)
 
-     # Converte a string em uma lista de documentos
+    # Converte a string em uma lista de documentos
     doc_csv = [Document(page_content=docs)]
 
     # Divide o texto em chunks
