@@ -48,6 +48,24 @@ Este projeto é um chatbot interativo desenvolvido com Streamlit e LangChain, qu
 
 4. Digite sua pergunta no campo de entrada e aguarde a resposta do chatbot.
 
+## Processamento de Arquivos
+
+### Chunking
+
+O processo de chunking divide os documentos em partes menores (chunks) para facilitar a análise e a recuperação de informações. Para arquivos PDF, utilizamos o `PyPDFLoader` para carregar o conteúdo e o `RecursiveCharacterTextSplitter` para dividir o texto em chunks de 1000 caracteres com uma sobreposição de 400 caracteres. Para arquivos CSV, carregamos o conteúdo com o `pandas` e convertemos em uma string, que é então dividida em chunks da mesma forma.
+
+### Vetorização
+
+Os chunks são vetorizados utilizando embeddings gerados pelo `OpenAIEmbeddings`. Esses embeddings são armazenados em um banco de dados Chroma, que permite a recuperação eficiente dos chunks relevantes para responder às perguntas dos usuários.
+
+### Banco de Dados
+
+Utilizamos o Chroma como banco de dados para armazenar e recuperar os embeddings dos chunks. O Chroma é um banco de dados especializado em armazenamento de vetores, permitindo buscas rápidas e eficientes.
+
+## Modelos de Linguagem (LLM)
+
+Utilizamos a API da OpenAI para interagir com modelos de linguagem avançados, como o `gpt-4` e `gpt-3.5-turbo`. Esses modelos são responsáveis por gerar respostas baseadas nos chunks recuperados do banco de dados, proporcionando respostas precisas e contextualmente relevantes.
+
 ## Benefícios
 
 - **Interatividade**: Permite a interação direta com modelos de linguagem avançados.
