@@ -49,13 +49,13 @@ def ask_question(model, df, query):
     messages.extend((msg['role'], msg['content']) for msg in st.session_state.get('messages', []))
     
 # Converter a lista de mensagens em uma string legível
-    prompt_str = "\n".join([f"{role}: {content}" for role, content in messages])
-    print("prompt_str = ", prompt_str)
+    PROMPT_IMPUT = "\n".join([f"{role}: {content}" for role, content in messages])
+    print("prompt_str = ", PROMPT_IMPUT)
 
     agent = create_pandas_dataframe_agent(
         llm=model, 
         df=df, 
-        prefix=prompt_str,
+        prefix=PROMPT_IMPUT,
         suffix=PROMPT_SUFFIX,
         verbose=True, 
         allow_dangerous_code=True,
